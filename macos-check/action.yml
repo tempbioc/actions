@@ -46,7 +46,6 @@ runs:
         echo 'options(repos = c(universe = trimws(strsplit(${{inputs.cranlikerepo}}, ";")[[1]]), getOption("repos")))' >> $R_PROFILE_USER
         cat $R_PROFILE_USER
         echo "JAVA_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
-        R --version | grep darwin20 && echo "MACOSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
         R CMD javareconf || true
         echo "::endgroup::"
       env:
@@ -81,9 +80,9 @@ runs:
       shell: bash
       run: R CMD check ${{inputs.sourcepkg}} --install-args="--build" ${{inputs.checkargs}}
       env:
-#       MACOSX_DEPLOYMENT_TARGET: 11.0
+        MACOSX_DEPLOYMENT_TARGET: 11.0
         #NB: Remove SDKROOT below when using building on newer macOS
-        SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX11.sdk
+        SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
         R_BROWSER: echo
         R_PDFVIEWER: echo
         RGL_USE_NULL: TRUE
