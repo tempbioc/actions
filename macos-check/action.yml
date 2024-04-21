@@ -96,6 +96,7 @@ runs:
         _R_CHECK_FORCE_SUGGESTS_: FALSE
         _R_CHECK_CRAN_INCOMING_: FALSE
         _R_CHECK_CRAN_INCOMING_REMOTE_: FALSE
+        _R_CHECK_VIGNETTES_SKIP_RUN_MAYBE_: TRUE # Workaround for https://github.com/yihui/knitr/issues/2338
         _R_SHLIB_STRIP_: TRUE
         _R_CHECK_TIMINGS_: 5
 
