@@ -42,7 +42,7 @@ runs:
         echo 'Sys.unsetenv(c("CI", "GITHUB_ACTIONS"))' >> $R_PROFILE_USER
         echo 'options(HTTPUserAgent = paste0(getOption("HTTPUserAgent"), "; r-universe"))' >> $R_PROFILE_USER
         echo 'options(repos = c(pppm = "https://p3m.dev/cran/latest", getOption("repos")))' >> $R_PROFILE_USER
-        echo 'options(repos = c(universe = trimws(strsplit(${{inputs.cranlikerepo}}, ";")[[1]]), getOption("repos")))' >> $R_PROFILE_USER
+        echo 'if(!grepl("4.4", getRversion()) || ${{inputs.cranlikerepo}} != "https://bioc.r-universe.dev") options(repos = c(universe = trimws(strsplit(${{inputs.cranlikerepo}}, ";")[[1]]), getOption("repos")))' >> $R_PROFILE_USER
         cat $R_PROFILE_USER
         echo "::endgroup::"
       env:
