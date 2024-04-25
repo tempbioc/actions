@@ -11,12 +11,13 @@ runs:
       run: |
         version="${{inputs.r-version}}"
         if [ "$version" = "devel" ]; then
-          URL="https://github.com/r-universe-org/actions/releases/download/4.4.0/R-4.4-branch-x86_64.pkg"
+          URL="https://github.com/r-universe-org/actions/releases/download/4.4.0/R-4.4.0-x86_64.pkg"
         elif [ "$version" = "release" ]; then
-          URL="https://github.com/r-universe-org/actions/releases/download/4.4.0/R-4.4-branch-x86_64.pkg"
+          URL="https://github.com/r-universe-org/actions/releases/download/4.4.0/R-4.4.0-x86_64.pkg"
         elif [ "$version" = "oldrel" ]; then
           URL="https://github.com/r-universe-org/actions/releases/download/4.3.3/R-4.3.3-x86_64.pkg"
         fi
+        echo "Installing from $URL"
         PKG=$(basename $URL)
         curl --max-time 300 --retry 3 -sSfLO $URL
         sudo installer -pkg "$PKG" -target /
@@ -29,7 +30,7 @@ runs:
         if ( $version -eq "devel" ) {
           $URL = "https://cloud.r-project.org/bin/windows/base/R-devel-win.exe"
         } elseif ( $version -eq "release" ) {
-          $URL = "https://github.com/r-universe-org/actions/releases/download/4.4.0/R-4.4.0rc-win.exe"
+          $URL = "https://github.com/r-universe-org/actions/releases/download/4.4.0/R-4.4.0-win.exe"
         } elseif ( $version -eq "oldrel" ) {
           $URL = "https://github.com/r-universe-org/actions/releases/download/4.3.3/R-4.3.3-win.exe"
         }
