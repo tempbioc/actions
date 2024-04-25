@@ -6,7 +6,8 @@ inputs:
     required: true
   checkargs:
     description: 'Extra args for R CMD check'
-    default: --no-manual --no-build-vignettes
+#    default: --no-manual --no-build-vignettes # knitr has a bug for --no-build-vignettes
+    default: --no-manual --no-vignettes
     required: true
   cranlikerepo:
     description: 'URL of the package repository with dependencies'
