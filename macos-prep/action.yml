@@ -111,18 +111,6 @@ runs:
 
     - shell: bash
       run: |
-        if pandoc --version 2>/dev/null; then
-          echo "Skipping pandoc installation"
-        else
-          echo "::group::Installing Pandoc"
-          curl --retry 3 -fOL https://github.com/jgm/pandoc/releases/download/3.1.12.1/pandoc-3.1.12.1-x86_64-macOS.pkg
-          sudo installer -pkg pandoc-3.1.12.1-x86_64-macOS.pkg -target /
-          rm -f pandoc-3.1.12.1-x86_64-macOS.pkg
-          echo "::endgroup::"
-        fi
-
-    - shell: bash
-      run: |
         echo "::group::Installing CRAN libs bundle"
         if [ -f "/opt/R/x86_64/bin/pkg-config" ]; then
           echo "/opt/R/x86_64/bin/pkg-config exists, skipping download"
@@ -144,9 +132,6 @@ runs:
           fi
         done
 
-        # Copy pandoc to cached dir
-        cp -f /usr/local/bin/pandoc /opt/R/x86_64/bin/
-
         # Fix up for libpng-config static linking (for rgl package)
         sed -i '' 's|-lpng16|-lpng16 -lz|g' /opt/R/arm64/bin/libpng16-config
 
@@ -157,6 +142,19 @@ runs:
         pkg-config --list-all
         echo "Done installing CRAN bundle!"
         echo "::endgroup::"
+
+    - shell: bash
+      run: |
+        if pandoc --version 2>/dev/null; then
+          echo "Skipping pandoc installation"
+        else
+          echo "::group::Installing Pandoc"
+          curl --retry 3 -fOL https://github.com/jgm/pandoc/releases/download/3.1.12.1/pandoc-3.1.12.1-x86_64-macOS.pkg
+          sudo installer -pkg pandoc-3.1.12.1-x86_64-macOS.pkg -target /
+          rm -f pandoc-3.1.12.1-x86_64-macOS.pkg
+          cp -f /usr/local/bin/pandoc /opt/R/x86_64/bin/  #Copy to cache
+          echo "::endgroup::"
+        fi
 
     - name: "Install JAGS if needed"
       shell: bash
