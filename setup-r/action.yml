@@ -43,9 +43,9 @@ runs:
 
         # Remove when stringi is fixed in R-devel
         if ( $version -eq "devel" ) {
-          curl -OsSL "https://github.com/r-universe-org/actions/releases/download/4.4.0/stringi_1.8.3.zip"
-          C:\\R\\bin\R CMD INSTALL stringi_1.8.3.zip
-          Remove-Item stringi_1.8.3.zip
+          curl -OsSL "https://github.com/r-universe-org/actions/releases/download/4.4.0/stringi_1.8.4.zip"
+          C:\\R\\bin\R CMD INSTALL stringi_1.8.4.zip
+          Remove-Item stringi_1.8.4.zip
         }
 
     - shell: bash
