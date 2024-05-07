@@ -1,0 +1,84 @@
+name: 'R CMD check'
+description: 'Prepare and check a package'
+inputs:
+  sourcepkg:
+    description: 'File of the source package'
+    required: true
+  checkargs:
+    description: 'Extra args for R CMD check'
+    default: --as-cran --no-manual
+    required: false
+  cranlikerepo:
+    description: 'URL of the package repository with dependencies'
+    default: 'Sys.getenv("MY_UNIVERSE", "https://dev.ropensci.org")'
+    required: true
+  java:
+    description: 'Package depends on rJava'
+    required: false
+  jags:
+    description: 'Package depends on JAGS'
+    required: false
+
+outputs:
+  binarypkg:
+    description: 'Filename of the output binary package'
+    value: ${{steps.results.outputs.BINARYPKG}}
+  distro:
+    description: 'Which Linux distro we have'
+    value: ${{steps.results.outputs.DISTRO}}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install package dependencies
+      run: |
+        cat('::group::Install package dependencies\n')
+        install.packages('remotes')
+        pkg_deps <- remotes::local_package_deps("${{inputs.sourcepkg}}", dependencies = TRUE)
+        installed <- row.names(installed.packages())
+        update.packages(oldPkgs = pkg_deps, ask = FALSE)
+        needpkg <- setdiff(pkg_deps, installed)
+        avail <- row.names(available.packages())
+        install <- intersect(needpkg, avail)
+        unavail <- setdiff(needpkg, avail)
+        install.packages(install)
+        if(length(unavail)) {
+          warning("Installing from remotes: ", paste(unavail, collapse = ','))
+          remotes::install_deps("${{inputs.sourcepkg}}", dependencies = TRUE, upgrade = FALSE)
+        }
+        cat('::endgroup::\n')
+      shell: Rscript {0}
+      env:
+        R_DEFAULT_INTERNET_TIMEOUT: 150
+    - name: Build and check package
+      shell: bash
+      run: R CMD check ${{inputs.sourcepkg}} --install-args="--build" ${{inputs.checkargs}}
+      env:
+        R_BROWSER: echo
+        R_PDFVIEWER: echo
+        RGL_USE_NULL: TRUE
+        R_TEXI2DVICMD: emulation
+        NOT_CRAN: FALSE
+        _R_CHECK_FORCE_SUGGESTS_: FALSE
+        _R_CHECK_CRAN_INCOMING_: FALSE
+        _R_CHECK_CRAN_INCOMING_REMOTE_: FALSE
+        _R_SHLIB_STRIP_: TRUE
+        _R_CHECK_TIMINGS_: 5
+
+    - name: Inspect check outputs
+      if: always()
+      id: results
+      shell: bash
+      run: |
+        echo "DISTRO=$(lsb_release -sc)" >> $GITHUB_OUTPUT
+        SOURCEPKG="${{ inputs.sourcepkg }}"
+        BINARYPKG="${SOURCEPKG%.tar.gz}_R_x86_64-pc-linux-gnu.tar.gz"
+        PKGNAME=$(echo $SOURCEPKG | cut -d '_' -f1)
+        if [ -f "${BINARYPKG}" ]; then
+          echo "Built binary package: $BINARYPKG"
+          echo "BINARYPKG=$BINARYPKG" >> $GITHUB_OUTPUT
+        else
+          echo "No binary package $BINARYPKG found. Skipping deployment."
+        fi
+        find . -regex '.*\.R*out' | while read f; do echo "::group::$f"; echo " ===== $f ====="; tail -n1000 $f; echo "::endgroup::"; done
+        find . -regex '.*\.fail' | while read f; do echo "::group::$f"; echo " ===== $f ====="; tail -n1000 $f; echo "::endgroup::"; done
