@@ -41,13 +41,6 @@ runs:
         Remove-Item Rinstall.exe
         echo "C:\\R\\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-        # Remove when stringi is fixed in R-devel
-        if ( $version -eq "devel" ) {
-          curl -OsSL "https://github.com/r-universe-org/actions/releases/download/4.4.0/stringi_1.8.4.zip"
-          C:\\R\\bin\R CMD INSTALL stringi_1.8.4.zip
-          Remove-Item stringi_1.8.4.zip
-        }
-
     - shell: bash
       run: R --version
 
