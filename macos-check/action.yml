@@ -48,7 +48,7 @@ runs:
         echo 'options(HTTPUserAgent = paste0(getOption("HTTPUserAgent"), "; r-universe"))' >> $R_PROFILE_USER
         echo 'options(repos = c(universe = trimws(strsplit(${{inputs.cranlikerepo}}, ";")[[1]]), getOption("repos")))' >> $R_PROFILE_USER
         cat $R_PROFILE_USER
-        echo "JAVA_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
+        echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
         R CMD javareconf || true
         echo "::endgroup::"
       env:
