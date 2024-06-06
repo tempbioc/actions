@@ -30,6 +30,12 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Start X server
+      shell: bash
+      run: |
+        nohup Xvfb :6 -screen 0 1280x1024x24 > /tmp/X.log 2>&1 &
+        echo "DISPLAY=:6" >> $GITHUB_ENV
+
     - name: Install package dependencies
       run: |
         cat('::group::Install package dependencies\n')
@@ -50,6 +56,7 @@ runs:
       shell: Rscript {0}
       env:
         R_DEFAULT_INTERNET_TIMEOUT: 150
+
     - name: Build and check package
       shell: bash
       run: R CMD check ${{inputs.sourcepkg}} --install-args="--build" ${{inputs.checkargs}}
