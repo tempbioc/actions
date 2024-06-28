@@ -23,6 +23,9 @@ outputs:
   binarypkg:
     description: 'Filename of the output binary package'
     value: ${{steps.results.outputs.BINARYPKG}}
+  checkstatus:
+    description: 'Final status of CMD check'
+    value: ${{steps.conclude.outputs.CHECKSTATUS}}
   distro:
     description: 'Which Linux distro we have'
     value: ${{steps.results.outputs.DISTRO}}
@@ -74,6 +77,15 @@ runs:
         _R_CHECK_TOPLEVEL_FILES_: FALSE
         _R_SHLIB_STRIP_: TRUE
         _R_CHECK_TIMINGS_: 5
+
+    - name: Parse CMD check results
+      if: always()
+      id: conclude
+      run: |
+        results <- tools:::check_packages_in_dir_results('.')
+        writeLines(paste0('CHECKSTATUS=',results[[1]]$status),Sys.getenv("GITHUB_OUTPUT"))
+        writeLines(results[[1]]$lines, 'checkresults.txt')
+      shell: Rscript {0}
 
     - name: Inspect check outputs
       if: always()

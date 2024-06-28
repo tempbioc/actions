@@ -9,6 +9,8 @@ inputs:
     description: 'Filename to upload'
   TARGET: 
     description: 'One of source, win, mac, wasm'
+  CHECKSTATUS:
+    description: 'Output status of CMD-check'
 
 runs:
   using: "composite"
@@ -19,6 +21,8 @@ runs:
         echo "DISTRO='${{ inputs.DISTRO }}'" >> pkgdata.txt
         echo "FILE='${{ inputs.FILE }}'" >> pkgdata.txt
         echo "TARGET='${{ inputs.TARGET }}'" >> pkgdata.txt
+        echo "CHECKSTATUS='${{ inputs.CHECKSTATUS }}'" >> pkgdata.txt
+
     - name: "Save source package"
       uses: actions/upload-artifact@v4
       with:
@@ -26,3 +30,4 @@ runs:
         path: |
           ${{ inputs.FILE }}
           pkgdata.txt
+          checkresults.*
