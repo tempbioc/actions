@@ -6,7 +6,7 @@ inputs:
     required: true
   checkargs:
     description: 'Extra args for R CMD check'
-    default: --no-manual
+    default: --no-manual --no-vignettes
     required: false
   cranlikerepo:
     description: 'URL of the package repository with dependencies'
