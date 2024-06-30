@@ -23,6 +23,13 @@ runs:
         echo "TARGET='${{ inputs.TARGET }}'" >> pkgdata.txt
         echo "CHECKSTATUS='${{ inputs.CHECKSTATUS }}'" >> pkgdata.txt
 
+    - shell: bash
+      run: |
+        if [ -n "$(find "${{ inputs.FILE }}" -prune -size +100M)" ]; then
+          echo "File ${{ inputs.FILE }} is larger than 100 MB. This is not allowed"
+          exit 1
+        fi
+
     - name: "Save source package"
       uses: actions/upload-artifact@v4
       with:
