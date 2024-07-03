@@ -19,13 +19,13 @@ runs:
       if: inputs.version != 'oldrel'
       run: |
         echo "R_HOME_CROSS=/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources" >> $GITHUB_ENV
-        echo "R_CROSS_URL=https://github.com/r-universe-org/actions/releases/download/4.4.0/R-4.4.0-arm64.tar.xz" >> $GITHUB_ENV
+        echo "R_CROSS_URL=https://github.com/tempbioc/actions/releases/download/4.4.0/R-4.4.0-arm64.tar.xz" >> $GITHUB_ENV
 
     - shell: bash
       if: inputs.version == 'oldrel'
       run: |
         echo "R_HOME_CROSS=/Library/Frameworks/R.framework/Versions/4.3-arm64/Resources" >> $GITHUB_ENV
-        echo "R_CROSS_URL=https://github.com/r-universe-org/actions/releases/download/4.3.3/R-4.3.3-arm64.tar.xz" >> $GITHUB_ENV
+        echo "R_CROSS_URL=https://github.com/tempbioc/actions/releases/download/4.3.3/R-4.3.3-arm64.tar.xz" >> $GITHUB_ENV
 
     - shell: bash
       run: |
@@ -115,7 +115,7 @@ runs:
         if [ -f "/opt/R/x86_64/bin/pkg-config" ]; then
           echo "/opt/R/x86_64/bin/pkg-config exists, skipping download"
         else
-          curl --retry 3 -fsSL https://github.com/r-universe-org/cranlibs/releases/download/2023-12-18/cranlibs-everything.tar.xz -o libs.tar.xz
+          curl --retry 3 -fsSL https://github.com/tempbioc/cranlibs/releases/download/2023-12-18/cranlibs-everything.tar.xz -o libs.tar.xz
           sudo tar -xf libs.tar.xz -C / opt
           rm -f libs.tar.xz
         fi
