@@ -16,25 +16,9 @@ runs:
   using: "composite"
   steps:
     - shell: bash
-      if: inputs.version != 'oldrel'
-      run: |
-        echo "R_HOME_CROSS=/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources" >> $GITHUB_ENV
-        echo "R_CROSS_URL=https://github.com/tempbioc/actions/releases/download/4.4.0/R-4.4.0-arm64.tar.xz" >> $GITHUB_ENV
-
-    - shell: bash
-      if: inputs.version == 'oldrel'
-      run: |
-        echo "R_HOME_CROSS=/Library/Frameworks/R.framework/Versions/4.3-arm64/Resources" >> $GITHUB_ENV
-        echo "R_CROSS_URL=https://github.com/tempbioc/actions/releases/download/4.3.3/R-4.3.3-arm64.tar.xz" >> $GITHUB_ENV
-
-    - shell: bash
       run: |
         sudo mkdir -p /opt
         sudo chown $USER /opt
-        if [ "$R_HOME_CROSS" ]; then
-          sudo mkdir -p $R_HOME_CROSS
-          sudo chown $USER $R_HOME_CROSS
-        fi
 
     - name: Cache tools
       uses: actions/cache@v4
@@ -43,9 +27,6 @@ runs:
           /opt/X11
           /opt/gfortran
           /opt/R/x86_64
-          /opt/R/arm64
-          /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources
-          /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources
         key: ${{ runner.os }}-${{ inputs.version }}-18
 
     - shell: bash
@@ -78,18 +59,6 @@ runs:
         fi
 
     - shell: bash
-      if: env.R_HOME_CROSS
-      run: |
-        if [ -d "$R_HOME_CROSS/lib" ]; then
-          echo "$R_HOME_CROSS/lib already exists."
-        else
-          curl -sSL $R_CROSS_URL -o R.tar.xz
-          tar xf R.tar.xz --strip-components=4 -C $R_HOME_CROSS 'R.framework/Versions/*/Resources/lib'
-          rm -Rf R.tar.xz $R_HOME_CROSS/lib/*.dSYM
-        fi
-        ls -ltRrh $R_HOME_CROSS/lib
-
-    - shell: bash
 #      if: inputs.fortran
       run: |
         if [ -d "/opt/gfortran/bin" ]; then
@@ -109,39 +78,9 @@ runs:
         fi
         echo "/opt/gfortran/bin" >> $GITHUB_PATH
 
-    - shell: bash
-      run: |
-        echo "::group::Installing CRAN libs bundle"
-        if [ -f "/opt/R/x86_64/bin/pkg-config" ]; then
-          echo "/opt/R/x86_64/bin/pkg-config exists, skipping download"
-        else
-          curl --retry 3 -fsSL https://github.com/tempbioc/cranlibs/releases/download/2023-12-18/cranlibs-everything.tar.xz -o libs.tar.xz
-          sudo tar -xf libs.tar.xz -C / opt
-          rm -f libs.tar.xz
-        fi
-        PATH="/opt/R/x86_64/bin:$PATH"
-        echo "/opt/R/x86_64/bin" >> $GITHUB_PATH
-        export PKG_CONFIG_PATH="/opt/R/x86_64/lib/pkgconfig:/opt/R/x86_64/share/pkgconfig:/usr/lib/pkgconfig:/opt/X11/lib/pkgconfig:/opt/X11/share/pkgconfig"
-        echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}" >> $GITHUB_ENV
-        echo "PROJ_LIB=/opt/R/x86_64/share/proj" >> $GITHUB_ENV
-
-        # Delete non-script files (we cannot run on host)
-        for bin in /opt/R/arm64/bin/*; do
-          if [ "$(file $bin | grep 'executable arm64')" ]; then
-            rm -fv $bin
-          fi
-        done
-
-        # Fix up for libpng-config static linking (for rgl package)
-        sed -i '' 's|-lpng16|-lpng16 -lz|g' /opt/R/arm64/bin/libpng16-config
-
-        # Create shims to help some packages
-        cp -fv ${{ github.action_path }}/shims/* /opt/R/arm64/bin/
-
-        echo "Available libs through pkg-config:"
-        pkg-config --list-all
-        echo "Done installing CRAN bundle!"
-        echo "::endgroup::"
+    #- shell: bash
+    #  run: |
+    #    echo "::group::Installing Simon's CRAN binaries"
 
     - shell: bash
       run: |
@@ -163,9 +102,6 @@ runs:
         curl --retry 3 -fLO https://github.com/autobrew/bundler/releases/download/jags-4.3.2/JAGS-4.3.2.pkg
         sudo installer -pkg JAGS-4.3.2.pkg -target /
         rm -f JAGS-4.3.2.pkg
-        if [ -d "/opt/R/arm64/lib/pkgconfig" ]; then
-          cp -f /usr/local/lib/pkgconfig/jags.pc /opt/R/arm64/lib/pkgconfig/
-        fi
         echo "Done installing JAGS!"
         echo "::endgroup::"
       if: inputs.jags

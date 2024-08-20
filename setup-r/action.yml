@@ -7,15 +7,13 @@ runs:
   using: "composite"
   steps: 
     - shell: bash
-      if: runner.os == 'macos'
+      if: runner.os == 'macos' && runner.arch == 'X86'
       run: |
         version="${{inputs.r-version}}"
         if [ "$version" = "devel" ]; then
           URL="https://mac.r-project.org/big-sur-x86_64/R-4.4-branch/R-4.4-branch-x86_64.pkg"
         elif [ "$version" = "release" ]; then
           URL="https://cloud.r-project.org/bin/macosx/big-sur-x86_64/base/R-4.4.1-x86_64.pkg"
-        elif [ "$version" = "oldrel" ]; then
-          URL="https://cloud.r-project.org/bin/macosx/big-sur-x86_64/base/R-4.3.3-x86_64.pkg"
         fi
         echo "Installing from $URL"
         PKG=$(basename $URL)
