@@ -71,7 +71,7 @@ runs:
                   "udunits",      # CRAN lwgeom, sf, units
                   "xz")
         install.libs(pkgs)
-      shell: R
+      shell: Rscript {0}
 
     - name: Update PATH, PKG_CONFIG_PATH, OPENSSL_LIBS
       if: runner.os == 'macos' && runner.arch == 'X64'
