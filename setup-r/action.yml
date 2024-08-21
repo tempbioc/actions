@@ -52,6 +52,41 @@ runs:
         echo "Running fake X server on $DISPLAY"
         echo "DISPLAY=$DISPLAY" >> $GITHUB_ENV
 
+    - name: Install Simon's CRAN binaries
+      if: runner.os == 'macos'
+      run: |
+        source("https://mac.R-project.org/bin/install.R")
+        pkgs <- c("fftw",         # CRAN ffw, ffwtools, PoissonBinomial, qqconf
+                  "fribidi",      # CRAN ragg, textshaping
+                  "gsl",          # BioC GLAD
+                  "glpk",         # BioC MMUPHin
+                  "hdf5",         # CRAN ncdf4 for Bioc mzR
+                  "harfbuzz",     # CRAN ragg, textshaping
+                  "netcdf",       # CRAN ncdf4 for Bioc mzR
+                  "openssl",
+                  "pkgconfig",
+                  "pcre2",        # CRAN rJava
+                  "proj",         # CRAN proj4
+                  "protobuf",     # CRAN protolib
+                  "udunits",      # CRAN lwgeom, sf, units
+                  "xz")
+        install.libs(pkgs)
+      shell: R
+
+    - name: Update PATH, PKG_CONFIG_PATH, OPENSSL_LIBS
+      if: runner.os == 'macos'
+      run: |
+        echo "::group::Update PATH, PKG_CONFIG_PATH, OPENSSL_LIBS"
+        PATH="/opt/R/x86_64/bin:$PATH"
+        echo "/opt/R/x86_64/bin" >> $GITHUB_PATH
+        export PKG_CONFIG_PATH="/opt/R/x86_64/lib/pkgconfig:/opt/R/x86_64/share/pkgconfig:/usr/lib/pkgconfig:/opt/X11/lib/pkgconfig:/opt/X11/share/pkgconfig"
+        echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}" >> $GITHUB_ENV
+        echo "Available libs through pkg-config:"
+        pkg-config --list-all
+        echo "OPENSSL_LIBS=/opt/R/x86_64/lib/libssl.a /opt/R/x86_64/lib/libcrypto.a" >> $GITHUB_ENV
+        echo "::endgroup::"
+      shell: bash
+
     - name: Set Windows timezone
       if: runner.os == 'windows'
       run: |
