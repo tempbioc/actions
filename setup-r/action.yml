@@ -7,7 +7,7 @@ runs:
   using: "composite"
   steps: 
     - shell: bash
-      if: runner.os == 'macos' && runner.arch == 'X86'
+      if: runner.os == 'macos' && runner.arch == 'X64'
       run: |
         version="${{inputs.r-version}}"
         if [ "$version" = "devel" ]; then
@@ -74,7 +74,7 @@ runs:
       shell: R
 
     - name: Update PATH, PKG_CONFIG_PATH, OPENSSL_LIBS
-      if: runner.os == 'macos'
+      if: runner.os == 'macos' && runner.arch == 'X64'
       run: |
         echo "::group::Update PATH, PKG_CONFIG_PATH, OPENSSL_LIBS"
         PATH="/opt/R/x86_64/bin:$PATH"
